@@ -114,7 +114,6 @@ class DAARE(nn.Module):
 
         # Add the first component
         self.components = nn.ModuleList()
-        self.add_cdae(residual=False, norm=norm)
 
     def add_cdae(self,
                  residual: bool = True,
@@ -174,7 +173,7 @@ class DAARE(nn.Module):
             z_inter = component(torch.cat([x, x_inter], axis=1))
 
         if return_intermediate:
+            return x_inter, z_inter
+        else:
             # Return difference of incremental observation and incremental noise
             return (x_inter - z_inter).detach()
-        else:
-            return x_inter, z_inter

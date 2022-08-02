@@ -8,6 +8,8 @@ import torch
 from torch.utils.data import Dataset
 from sklearn.preprocessing import StandardScaler
 
+from tqdm import tqdm
+
 from data import simulate
 
 
@@ -25,7 +27,7 @@ class AKRDataset(Dataset):
         self.observations = []
         brushes = simulate.read_brushes(args)
 
-        for _ in range(n_dataset):
+        for _ in (tqdm(range(n_dataset), leave=False, position=0, bar_format=args.tqdm_format) if args.verbose else range(n_dataset)):
             y = simulate.ground_truth(brushes, args)
             x = simulate.noise(y, args)
 
