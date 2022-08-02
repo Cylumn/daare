@@ -19,17 +19,19 @@ def get_args():
     # Options
     parser.add_argument('--model_name', default='daare_v1', type=str, help='Name of the model when logging and saving.')
     parser.add_argument('--verbose', action='store_true', help='Trains with debugging outputs and print statements.')
-    parser.add_argument('--disable_logs', action='store_false', help='Disables logging to the output log directory.')
+    parser.add_argument('--disable_logs', action='store_true', help='Disables logging to the output log directory.')
     parser.add_argument('--refresh_brushes_file', action='store_true',
                         help='Rereads brush images and saves them to data/brushes.csv')
 
     # Simulation parameters
+    # > Ground truth
     parser.add_argument('--theta_bg_intensity', default=[0, 0.6], type=float, nargs=2,
                         help='Bounds of the uniform distribution to draw background intensity.')
     parser.add_argument('--theta_n_akr', default=8, type=int,
                         help='Expected number of akr from the poisson distribution.')
     parser.add_argument('--theta_akr_intensity', default=[0, 0.15], type=float, nargs=2,
                         help='(Before absolute value) mean and std of AKR intensity.')
+    # > Noise
     parser.add_argument('--theta_gaussian_intensity', default=[0.01, 0.04], type=float, nargs=2,
                         help='Bounds of the uniform distribution to determine the intensity of gaussian noise.')
     parser.add_argument('--theta_overall_channel_intensity', default=[0.3, 0.6], type=float, nargs=2,
@@ -40,6 +42,11 @@ def get_args():
                         help='Expected *half* height of the channel from the exponential distribution.')
     parser.add_argument('--theta_channel_intensity', default=[0.1, 0.8], type=float, nargs=2,
                         help='Bounds of the uniform distribution to determine the individual intensity of channels.')
+    # > Simulation scaling
+    parser.add_argument('--disable_dataset_scaling', action='store_true',
+                        help='Disables scaling of synthetic AKR in the dataset.')
+    parser.add_argument('--dataset_intensity_scale', default=[0.2, 0.2], type=float, nargs=2,
+                        help='Mean and standard deviation to scale the images to.')
 
     # Model parameters
     parser.add_argument('--img_size', default=[256, 384], type=int, nargs=2, help='Input size to DAARE.')

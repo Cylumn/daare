@@ -1,33 +1,59 @@
-from torch.utils.data import Dataset
+"""
+Pytorch dataset for synthetic AKR.
+Author: Allen Chang
+Date Created: 08/02/2022
+"""
+
 import torch
+from torch.utils.data import Dataset
 from sklearn.preprocessing import StandardScaler
+
+from data import simulate
 
 
 class AKRDataset(Dataset):
-    def __init__(self, simulate, n_dataset, brush_range=(None, None), scale: bool = True):
-        self.img_true = []
-        self.img_perturbed = []
-        self.simulate = simulate
-        brushes = simulate.read_brushes('data', False)[brush_range[0]:brush_range[1]]
+    """
+    Dataset class for loading and scaling synthetic AKR.
+    """
+    def __init__(self, n_dataset, args):
+        """
+        Initializes the dataset class.
+        :param n_dataset: Size of the dataset.
+        :param args: Command line arguments.
+        """
+        self.ground_truths = []
+        self.observations = []
+        brushes = simulate.read_brushes(args)
 
-        for i in range(n_dataset):
-            y = simulate.ground_truth(brushes)
-            x = simulate.noise(simulate.noise(y))
+        for _ in range(n_dataset):
+            y = simulate.ground_truth(brushes, args)
+            x = simulate.noise(y, args)
 
-            if scale:
-                sc = StandardScaler()
-                shape = y.shape
-                x = torch.tensor(sc.fit_transform(x.reshape(-1, 1)).reshape(-1, shape[0], shape[1]) * 0.2 + 0.2).float()
-                y = torch.tensor(sc.transform(y.reshape(-1, 1)).reshape(-1, shape[0], shape[1]) * 0.2 + 0.2).float()
+            # Reshape and scale
+            if args.disable_dataset_scaling:
+                x = x[None, :, :]
+                y = y[None, :, :]
             else:
-                x = torch.tensor(x[None, :, :]).float()
-                y = torch.tensor(y[None, :, :]).float()
+                # Scale to N(0, 1)
+                sc = StandardScaler()
+                x = sc.fit_transform(x.reshape(-1, 1)).reshape(-1, args.img_size[0], args.img_size[1])
+                y = sc.transform(y.reshape(-1, 1)).reshape(-1, args.img_size[0], args.img_size[1])
+                # Rescale with mean and std
+                x = x * args.dataset_intensity_scale[1] + args.dataset_intensity_scale[0]
+                y = y * args.dataset_intensity_scale[1] + args.dataset_intensity_scale[0]
 
-            self.img_true.append(y)
-            self.img_perturbed.append(x)
+            # Add to dataset
+            self.ground_truths.append(torch.tensor(y).float())
+            self.observations.append(torch.tensor(x).float())
 
     def __len__(self):
-        return len(self.img_true)
+        """
+        :return: The length of the AKR dataset.
+        """
+        return len(self.ground_truths)
 
     def __getitem__(self, idx):
-        return self.img_perturbed[idx], self.img_true[idx]
+        """
+        :return: A tuple of the (x, y) of the dataset.
+        """
+        return self.observations[idx], self.ground_truths[idx]

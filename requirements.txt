@@ -1,5 +1,8 @@
 argparse
-digitalrf
+digital_rf
 imageio
+matplotlib
 numpy
 pandas
+scikit-learn
+torch
