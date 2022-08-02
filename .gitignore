@@ -1,2 +1,4 @@
-.idea
 __pycache__
+.idea
+.ipynb_checkpoints
+tester.ipynb
