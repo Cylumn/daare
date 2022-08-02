@@ -53,6 +53,7 @@ def get_args():
     parser.add_argument('--n_cdae', default=6, type=int,
                         help='The number of stacked convolutional denoising autoencoders in DAARE.')
     parser.add_argument('--depth', default=8, type=int, help='Depth of each convolutional denoising autoencoder.')
+    parser.add_argument('--n_hidden', default=8, type=int, help='Size of each hidden Conv2d layer.')
     parser.add_argument('--kernel', default=[13, 5], type=int, nargs=2,
                         help='Kernel shape for the convolutional layers.')
     parser.add_argument('--n_layernorm', default=3, type=int,
