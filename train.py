@@ -218,7 +218,7 @@ def start_training(args):
         'state_dict': daare.state_dict(),
         'args': args
     }
-    torch.save(state_dict, f'{args.out_path}/{args.model_name}.pt')
+    torch.save(state_dict, f'{args.path_to_output}/{args.model_name}.pt')
 
 
 def get_args():
@@ -227,11 +227,7 @@ def get_args():
     # Paths
     parser.add_argument('--path_to_data', default='data', type=str, help='Path to the data directory.')
     parser.add_argument('--path_to_logs', default='logs', type=str, help='Path to the logs directory.')
-    parser.add_argument('--out_path', default='./', type=str, help='Path to the output directory.')
-
-    # Hardware
-    parser.add_argument('--device_ids', default=[0, 1], type=int, nargs=2,
-                        help="Device ids of the GPUs, if GPUs are available.")
+    parser.add_argument('--path_to_output', default='./', type=str, help='Path to the output directory.')
 
     # Options
     parser.add_argument('--model_name', default='daare_v1', type=str, help='Name of the model when logging and saving.')
@@ -272,13 +268,15 @@ def get_args():
     parser.add_argument('--n_cdae', default=6, type=int,
                         help='The number of stacked convolutional denoising autoencoders in DAARE.')
     parser.add_argument('--depth', default=8, type=int, help='Depth of each convolutional denoising autoencoder.')
-    parser.add_argument('--n_hidden', default=8, type=int, help='Size of each hidden Conv2d layer.')
+    parser.add_argument('--n_hidden', default=8, type=int, help='Size of each hidden conv2d layer.')
     parser.add_argument('--kernel', default=[13, 5], type=int, nargs=2,
                         help='Kernel shape for the convolutional layers.')
     parser.add_argument('--n_norm', default=3, type=int,
                         help='The first n convolutional autoencoders to apply layernorm to.')
 
     # Training parameters
+    parser.add_argument('--device_ids', default=[0, 1], type=int, nargs=2,
+                        help='Device ids of the GPUs, if GPUs are available.')
     parser.add_argument('--n_train', default=4096, type=int,
                         help='The number of training samples that are included in the training set.')
     parser.add_argument('--n_valid', default=1024, type=int,
