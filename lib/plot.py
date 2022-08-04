@@ -18,7 +18,8 @@ def spect_simple(data,
                  dpi=400,
                  fs=4,
                  vmin=None,
-                 vmax=None):
+                 vmax=None,
+                 cbar_label: str = None):
     """
     Visualizes a simple spectrogram.
 
@@ -31,6 +32,7 @@ def spect_simple(data,
     :param fs: Font size.
     :param vmin: Lower value bound of the cmap.
     :param vmax: Upper value bound of the cmap.
+    :param cbar_label: Label of the colorbar.
     :return: Matplotlib axis object.
     """
     # Font to use
@@ -52,7 +54,9 @@ def spect_simple(data,
     # Colorbar
     divider = make_axes_locatable(ax)
     cax = divider.append_axes("right", size="5%", pad=0.05)
-    plt.colorbar(im, cax=cax)
+    cbar = plt.colorbar(im, cax=cax)
+    if cbar_label:
+        cbar.set_label(cbar_label, labelpad=10)
     # Axis and Labeling
     if frequency is not None:
         ax.set_yticks(np.arange(0, len(frequency), len(frequency) // 8))
