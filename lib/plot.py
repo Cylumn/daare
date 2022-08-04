@@ -17,8 +17,8 @@ def spect_simple(data,
                  cmap='jet',
                  dpi=400,
                  fs=4,
-                 vmin=0,
-                 vmax=1):
+                 vmin=None,
+                 vmax=None):
     """
     Visualizes a simple spectrogram.
 
@@ -36,6 +36,14 @@ def spect_simple(data,
     # Font to use
     font = {'family': 'DejaVu Sans', 'weight': 'normal', 'size': fs}
     matplotlib.rc('font', **font)
+
+    # Set vmin, vmax
+    if vmin is None:
+        data_flattened = data.flatten()
+        vmin = data_flattened.mean() - data_flattened.std()
+    if vmax is None:
+        data_flattened = data.flatten()
+        vmax = data_flattened.mean() + data_flattened.std() * 4
 
     # Create plot
     fig, ax = plt.subplots(figsize=(5, 5), dpi=dpi)
@@ -65,28 +73,59 @@ def spect_simple(data,
 
 
 def spects(rows,
-           nrows_ncols):
+           nrows_ncols,
+           cbar_col: int = None):
     """
     Plots multiple spectrograms in an ImageGrid.
     :param rows: List of tensors to plot.
     :param nrows_ncols: Number of rows, number of columns to plot.
+    :param cbar_col: The index of the column that changes the extent of the colorbar.
+                     If 'None' is passed, uses all the columns.
     """
     import torch
     from mpl_toolkits.axes_grid1 import ImageGrid
 
-    # Create figure
-    fig = plt.figure(figsize=(20., 20.))
+    # Assertions
+    assert (nrows_ncols[0] > 0 and nrows_ncols[1] > 0), "Rows and columns must be greater than 0"
+    assert (cbar_col >= 0 and cbar_col < nrows_ncols[1]), "cbar_col must be between [0, n_cols)"
+
+    # Reshape rows
     rows = [(col.detach() if type(col) == torch.Tensor else torch.tensor(col)) for col in rows]
-    img_shape = rows[0].shape[-2:]
+    img_size = rows[0].shape[-2:]
     axis = 0 if (nrows_ncols[0] == 1 or nrows_ncols[1] == 1) else 1
-    rows = torch.cat(rows, axis=axis).view(nrows_ncols[0], nrows_ncols[1], img_shape[0], img_shape[1])
-    grid = ImageGrid(fig, 111, nrows_ncols=nrows_ncols, axes_pad=0.1)
+    rows = torch.cat(rows, axis=axis).view(nrows_ncols[0], nrows_ncols[1], img_size[0], img_size[1])
+
+    # Make ImageGrid
+    fig = plt.figure(figsize=(20., 20.))
+    grid = ImageGrid(fig, 111, nrows_ncols=nrows_ncols, axes_pad=0.1,
+                     cbar_location="right",
+                     cbar_mode="edge",
+                     cbar_size="5%",
+                     cbar_pad="2%")
+
+    # Calculate row-wise vmin, vmax
+    vmins = []
+    vmaxs = []
+    for row in rows:
+        if cbar_col is None:
+            row_flattened = row.flatten()
+        else:
+            row_flattened = row[cbar_col].flatten()
+        vmins.append(row_flattened.mean() - row_flattened.std())
+        vmaxs.append(row_flattened.mean() + row_flattened.std() * 4)
 
     # Place the images on the grid
     df_grid = rows.reshape(-1, rows.shape[-2], rows.shape[-1])
-    for ax, im in zip(grid, df_grid):
-        if len(im.shape) > 2:
-            im = im.reshape(im.shape[-2:])
-        ax.imshow(im, origin='lower', cmap='jet', vmin=0, vmax=1)
+    for i in range(len(grid)):
+        # Image
+        x = df_grid[i]
+        # If has channel dimension
+        if len(x.shape) > 2:
+            x = x.reshape(x.shape[-2:])
+        # Imshow with vmin, vmax
+        im = grid[i].imshow(x, origin='lower', cmap='jet',
+                            vmin=vmins[i // nrows_ncols[1]], vmax=vmaxs[i // nrows_ncols[1]])
+        # Plot colorbar
+        plt.colorbar(im, cax=grid.cbar_axes[i], orientation='vertical')
 
-    plt.show()
+    return grid

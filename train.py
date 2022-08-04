@@ -236,7 +236,7 @@ def get_args():
                         help='Flag bar_format for the TQDM progress bar.')
     parser.add_argument('--disable_logs', action='store_true', help='Disables logging to the output log directory.')
     parser.add_argument('--refresh_brushes_file', action='store_true',
-                        help='Rereads brush images and saves them to data/brushes.csv')
+                        help='Rereads brush images and saves them to data/brushes/brushes.csv')
 
     # Simulation parameters
     # > Ground truth

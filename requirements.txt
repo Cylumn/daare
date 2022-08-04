@@ -3,6 +3,7 @@ digital_rf
 imageio
 matplotlib
 numpy
+opencv-python
 pandas
 scikit-learn
 tensorboard

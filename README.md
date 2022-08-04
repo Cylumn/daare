@@ -46,7 +46,7 @@ pip install -r requirements.txt
 
 `--disable_logs`: Disables logging to the output log directory.                               
 
-`--refresh_brushes_file`: Rereads brush images and saves them to [data/brushes.csv](data/brushes.csv) 
+`--refresh_brushes_file`: Rereads brush images and saves them to [the loaded CSV file](data/brushes/brushes.csv). 
 
 #### Simulation parameters
 `--theta_bg_intensity`: Bounds of the uniform distribution to draw background intensity.                      
@@ -95,4 +95,65 @@ pip install -r requirements.txt
 
 `--learning_rate`: The learning rate of each convolutional denoising autoencoder.
 
-## <a name="api"></a>API Tutorial
+## <a name=“api”></a>API Tutorial
+The API was developed to load and run a pretrained model 
+without needing to have a prior understanding of PyTorch. 
+It is also meant to enable easy reading of 
+radio data written to disk and spectrogram generation.
+
+### API initialization
+```python
+from lib.api import DAARE_API
+
+PATH_TO_PRETRAINED = 'daare_pretrained.pt'
+api = DAARE_API(PATH_TO_PRETRAINED)
+```
+### Reading digital_rf files
+```python
+import numpy as np
+
+# List of file paths
+files = ['<path_to_file1>', '<path_to_file2>']
+channels = ['ant0', 'ant0']
+
+# Spectrogram parameters
+nfft = 1024
+bins = 1536
+verbose = True
+
+# Read files
+obs, freqs, times, starts = api.read_drf(files, channels, 
+                                         nfft, bins, verbose=verbose)
+```
+### Batch denoising with a numpy array
+```python
+# Larger batch sizes will enable faster
+# denoising, though the maximum batch size
+# is constrained by the memory available
+# on your machine.
+batch_size = 16
+
+# DAARE works with 256 x 384 pixel images
+# and will resize the spectrogram to fit these
+# dimensions. Enabling this flag will
+# make the API rescale to the input image
+# dimensions; otherwise, it will default to
+# return the 256 x 384 pixel output.
+retain_size = True
+
+# batch_size, return_same_size, and verbose arguments are optional
+obs_denoised = api.denoise(obs, batch_size, retain_size)
+```
+### Visualize spectrogram
+```python
+from lib.plot import spects
+
+# Indices of spectrograms to visualize
+samples = [0]
+# Dimensions of the output figure
+nrows_ncols = (len(samples), 2)
+# Column that changes the extent of the colorbar
+cbar_col = 0
+# Plot spectrograms
+spects([obs[samples], obs_denoised[samples]], nrows_ncols, cbar_col)
+```
