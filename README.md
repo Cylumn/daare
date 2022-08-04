@@ -4,7 +4,7 @@
 2. [Approach](#approach)
 3. [Usage](#usage)
 4. [Command Line Arguments](#arguments)
-5. [API Tutorial](#api_tutorial)
+5. [API Tutorial](#api-tutorial)
 
 ## <a name="about"></a>About
 The Denoising Autoencoder for Auroral Radio Emissions (DAARE) 
@@ -95,7 +95,7 @@ pip install -r requirements.txt
 
 `--learning_rate`: The learning rate of each convolutional denoising autoencoder.
 
-## <a name=“api_tutorial”></a>API Tutorial
+## <a name=“api-tutorial”></a>API Tutorial
 The API was developed to load and run a pretrained model 
 without needing to have a prior understanding of PyTorch. 
 It is also meant to enable easy reading of 
