@@ -5,6 +5,7 @@
 3. [Usage](#usage)
 4. [Command Line Arguments](#arguments)
 5. [API Tutorial](#api-tutorial)
+6. [Citation](#citation)
 
 ## <a name="about"></a>About
 The Denoising Autoencoder for Auroral Radio Emissions (DAARE) 
@@ -156,4 +157,14 @@ nrows_ncols = (len(samples), 2)
 cbar_col = 0
 # Plot spectrograms
 spects([obs[samples], obs_denoised[samples]], nrows_ncols, cbar_col)
+```
+
+## <a name="citation"></a>Citation
+```
+@article{chang2022removing,
+  title={Removing Radio Frequency Interference from Auroral Kilometric Radiation with Stacked Autoencoders},
+  author={Chang, Allen and Knapp, Mary and LaBelle, James and Swoboda, John and Volz, Ryan and Erickson, Philip J},
+  journal={arXiv preprint arXiv:2210.12931},
+  year={2022}
+}
 ```
